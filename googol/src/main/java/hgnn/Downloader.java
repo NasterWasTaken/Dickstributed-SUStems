@@ -1,27 +1,35 @@
 package hgnn;
 
-import org.jsoup.*;
-import org.jsoup.nodes.*;
-import org.jsoup.select.*;
-import java.io.*;
-import java.util.*;
+public class Downloader implements Runnable {
+    Queue que;
+    public boolean exit;
 
-public class Downloader {
-    public static void main(String args[]) {
-        String url = args[0];
+    Downloader(Queue que, int id) {
+        this.que = que;
+        this.exit = false;
+        new Thread(this, String.format("Downloader-%d", id)).start();
+    }
 
-        try {
-            Document doc = Jsoup.connect(url).get();
-            StringTokenizer tokens = new StringTokenizer(doc.text());
-            int countTokens = 0;
-            while (tokens.hasMoreElements() && countTokens++ < 100)
-                System.out.println(tokens.nextToken().toLowerCase());
-            Elements links = doc.select("a[href]");
-            for (Element link : links)
-                System.out.println(link.text() + "\n" + link.attr("abs:href") + "\n");
+    public void stop() {
+        this.exit = true;
+    }
+
+    public void run() {
+        String url = que.haveALook();
         
-        } catch (IOException e) {
-            e.printStackTrace();
+        while(exit == false && que.getQueueSize() != 0) {
+            if(que.inVisited(url)) {
+                url = que.removeQueURL();
+                continue;
+            }
+            
+            try {
+                System.out.print("Thread: " + Thread.currentThread().getName());
+                que.updateQueue(url);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                stop();
+            }
         }
     }
 }
