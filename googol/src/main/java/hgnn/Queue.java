@@ -1,76 +1,82 @@
 package hgnn;
 
-import org.jsoup.*;
-import org.jsoup.nodes.*;
-import org.jsoup.select.*;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.rmi.*;
+import java.rmi.registry.*;
+import java.rmi.server.*;
 
-public class Queue {
+public class Queue extends UnicastRemoteObject implements QueueInterface {
     private ArrayBlockingQueue<String> que;
-    private Set<String> visited;
+    private HashSet<String> visited;
 
-    public Queue(int size) {
+    public Queue(int size) throws RemoteException {
+        super();
         this.que = new ArrayBlockingQueue<>(size);
         this.visited = new HashSet<String>();
     }
 
-    public void firstURL(String url) {
+    public void addURL(String url) {
         this.que.add(url);
     }
 
-    synchronized public void addVisited(String url) {
+    public void addVisited(String url) {
         this.visited.add(url);
     }
 
-    synchronized public int getQueueSize() {
+    public int getQueueSize() {
         return this.que.size();
     }
 
-    synchronized public boolean inVisited(String url) {
+    public int getVisitedSize() {
+        return this.visited.size();
+    }
+
+    public boolean inVisited(String url) {
         return visited.contains(url);
     }
 
-    synchronized public String removeQueURL() {
+    public String removeURL() {
         return que.poll();
     }
 
-    synchronized public String getURLWait() throws InterruptedException {
+    public String getFrontURL() throws InterruptedException {
         return this.que.take();
     }
 
-    synchronized public String haveALook() {
+    public String peekFront() {
         return this.que.peek();
     }
 
-    synchronized public String updateQueue(String url) throws InterruptedException {
+    public void updateQueue(String url) throws InterruptedException {
         try {
-            wait();
-        } catch (InterruptedException e) {
-            System.out.println("interruptedException caught");
+
+        } catch (Exception e) {
+            System.out.println("[Error] Remote Exception in update");
         }
+    }
 
+    public static void main(String args[]) {
         try {
-            Document doc = Jsoup.connect(url).get();
-                
-            Elements links = doc.select("a[href]");
-            for (Element link : links) {
-                if(visited.contains(link.attr("abs:href"))) continue;
-
-                que.put(link.attr("abs:href"));
-            }
             
-            visited.add(url);
-            url = que.poll();
+            System.out.println("[Queue] Booting Queue...");
+            QueueInterface queI = new Queue(100000);
+            queI.addURL("https://youtube.com");
 
-            System.out.printf(" | Queue size: %d | Visited: %d | url: %s\n", que.size(), visited.size(), haveALook());
+            Registry reg = LocateRegistry.createRegistry(9876);
+            reg.rebind("Queue", queI);
+            System.out.println("[Queue] Successfully Booted and Started RMI Server!");
+
+            
+
+            while(true) {
+                // TODO: receber url de gateway/Downloader, meter na fila
+
+            }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("[Error] IO: " + e.getMessage());
         }
-
-        notifyAll();
-        return url;
     }
 }
