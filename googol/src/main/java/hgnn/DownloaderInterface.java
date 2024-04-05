@@ -3,6 +3,6 @@ package hgnn;
 import java.rmi.*;
 
 public interface DownloaderInterface extends Remote {
-    public String parsePage(String url) throws RemoteException;
+    public void parsePage(String url) throws RemoteException;
     
 }

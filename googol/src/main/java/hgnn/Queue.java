@@ -17,12 +17,12 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         this.visited = new HashSet<String>();
     }
 
-    public void addURL(String url) {
-        this.que.add(url);
+    public boolean addURL(String url) {
+        return this.que.add(url);
     }
 
-    public void addVisited(String url) {
-        this.visited.add(url);
+    public boolean addVisited(String url) {
+        return this.visited.add(url);
     }
 
     public int getQueueSize() {
@@ -47,14 +47,6 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
 
     public String peekFront() {
         return this.que.peek();
-    }
-
-    public void updateQueue(String url) throws InterruptedException {
-        try {
-
-        } catch (Exception e) {
-            System.out.println("[Error] Remote Exception in update");
-        }
     }
 
     public static void main(String args[]) {
