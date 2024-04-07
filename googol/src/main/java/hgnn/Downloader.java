@@ -3,6 +3,7 @@ package hgnn;
 import java.io.IOException;
 import java.net.*;
 import java.rmi.*;
+import java.rmi.registry.*;
 import java.rmi.server.*;
 import java.text.Normalizer;
 import java.util.*;
@@ -171,7 +172,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
             MulticastSocket socket = new MulticastSocket(PORT);
             InetAddress add = InetAddress.getByName(MULTICAST_ADDRESS);
 
-            QueueInterface que = (QueueInterface) Naming.lookup("rmi://192.168.1.98/Queue");
+            QueueInterface que = (QueueInterface) LocateRegistry.getRegistry(1099).lookup("Queue");
             System.out.println("[Downloader] Connected to Queue RMI Server!");
 
             for(int i = 1; i <= numDownloaders; ++i) {
