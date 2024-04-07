@@ -55,46 +55,27 @@ class MulticastHandlerBarrel implements Runnable {
     private BarrelMulticastTest barrel;
     private static String MULTICAST_ADDRESS = "224.3.2.1";
     private static int PORT = 7561;
-    private MulticastSocket socket;
 
     public MulticastHandlerBarrel(BarrelMulticastTest barrel) {
         this.barrel = barrel;
 
-        try {
-            this.socket = new MulticastSocket(PORT);
-        } catch (IOException e) {
-            System.out.println("[Handler: Multicast] IOException occurred");
-        } finally {
-            this.socket.close();
-            System.out.println("[Handler: Multicast] Offline...");
-        }
-        
         new Thread(this, "Receiver").start();
     }
 
-    public void end(MulticastSocket socket) {
-        socket.close();
-    }
-
     public void run() {
-
+        MulticastSocket socket = null;
         try {
+            socket = new MulticastSocket(PORT);
+            socket.setSoTimeout(10000);
             InetSocketAddress add = new InetSocketAddress(MULTICAST_ADDRESS, PORT);
             NetworkInterface nwtI = NetworkInterface.getByName("multi");
-            this.socket.joinGroup(add, nwtI);
-
-            Runtime.getRuntime().addShutdownHook(new Thread(){
-                public void run() {
-                    System.out.println("[Handler: Multicast] Closing Socket...");
-                    end(socket);
-                }
-            });
+            socket.joinGroup(add, nwtI);
 
             System.out.println("[Handler: Multicast] Listening...");
             while(true) {
                 byte[] buf = new byte[256];
                 DatagramPacket pack = new DatagramPacket(buf, buf.length);
-                this.socket.receive(pack);
+                socket.receive(pack);
 
                 String msg = new String(pack.getData(), 0, pack.getLength());
                 new MessageHandlerBarrel(this.barrel, msg);
@@ -103,7 +84,7 @@ class MulticastHandlerBarrel implements Runnable {
         } catch (IOException e) {
             System.out.println("[Handler: Multicast] IOException occurred");
         } finally {
-            this.socket.close();
+            socket.close();
             System.out.println("[Handler: Multicast] Offline...");
         }
     }
