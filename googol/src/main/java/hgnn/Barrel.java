@@ -8,6 +8,9 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 
+/**
+ * Barrel class
+ */
 public class Barrel implements BarrelBase, Runnable, Serializable {
 
     private HashSet<Webpage> webpages;
@@ -16,17 +19,19 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
 
     private String SAVE;
     private String name;
-    private boolean updated;
     
     private static int MAX_DOWNS = 3;
     private Vector<Integer> curPack;
     private Vector<Vector<Integer>> lostPacks;
 
+    /**
+     * Barrel constructor
+    * @throws RemoteException
+    */
     public Barrel() throws RemoteException {
         this.webpages = new HashSet<>();
         this.index = new HashMap<>();
         this.links = new HashMap<>();
-        this.updated = false;
 
         this.curPack = new Vector<>();
         this.lostPacks = new Vector<>();
@@ -40,32 +45,31 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
         new Thread(this, "Barrel").start();
     }
 
+    
+    /** 
+     * Starts the database from file
+     * @param name
+     * @throws RemoteException
+     */
     public void init(String name) throws RemoteException{
 
         this.SAVE = "./data/save" + name + ".txt";
         this.readSave(); 
     }
 
+    
+    /** 
+     * Returns barrel name
+     * @return String
+     * @throws RemoteException
+     */
     public String getName() throws RemoteException{
         return this.name;
     }
 
-    public void setUpdated(boolean update){
-        this.updated = update;
-    }
-
-    public boolean getUpdated() throws RemoteException{
-        return this.updated;
-    }
-
-    synchronized public void setPacket(int downID, int packID){
-        this.curPack.set(downID, packID);
-    }
-
-    synchronized public int getPacket(int downID){
-        return this.curPack.get(downID);
-    }
-
+    /**
+     * Writes to save file
+     */
     public void writeSave(){
 
         try{
@@ -125,6 +129,9 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
         }
     }
 
+    /**
+     * Reads from save file
+     */
     public void readSave(){
 
         File file = new File(this.SAVE);
@@ -168,6 +175,13 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
         }
     }
 
+    
+    /** 
+     * Adds a web page to the barrel
+     * @param url page url
+     * @param title page title
+     * @param content page content
+     */
     synchronized public void addWebpage(String url, String title, String content){
 
         for(Webpage web: this.webpages){
@@ -180,6 +194,12 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
         this.webpages.add(new Webpage(url, title, content));    
     }
 
+    
+    /** 
+     * Returns the number of webpages associated to a word
+     * @param web
+     * @return int
+     */
     synchronized public int getWebNumber(Webpage web){
 
         if(this.links.containsKey(web.getUrl())){
@@ -189,6 +209,12 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
         return -1;
     }
 
+    
+    /** 
+     * Indexes word in the barrel and a corresponding url
+     * @param url
+     * @param content
+     */
     synchronized public void addContent(String url, String content){
 
         if(this.index.containsKey(content)){
@@ -203,6 +229,12 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
         }
     }
 
+    
+    /** 
+     * Adds info from lost packed
+     * @param downID
+     * @param packID
+     */
     synchronized public void addLostPacket(int downID, int packID){
 
         if(!this.lostPacks.get(downID).contains(packID)){
@@ -211,6 +243,13 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
         }
     }
 
+    
+    /** 
+     * Parses through lines from save file
+     * @param line
+     * @throws NumberFormatException
+     * @throws IndexOutOfBoundsException
+     */
     public void lineParser(String line) throws NumberFormatException, IndexOutOfBoundsException{
 
         String s[];
@@ -363,6 +402,9 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
     }
 }
 
+/**
+ * Helper class to process the information that comes from the Downloaders
+ */
 class MulticastHandlerBarrel implements Runnable {
 
     private Barrel barrel;
@@ -403,6 +445,9 @@ class MulticastHandlerBarrel implements Runnable {
     }
 }
 
+/**
+ * Helper class to process the messages from the downloaders
+ */
 class MessageHandlerBarrel implements Runnable {
     
     private Barrel barrel;
@@ -477,6 +522,9 @@ class MessageHandlerBarrel implements Runnable {
     }
 }
 
+/**
+ * Helper class for webpage management
+ */
 class WebpageTotal{
 
     private Webpage web;

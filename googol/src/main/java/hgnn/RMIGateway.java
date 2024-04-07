@@ -6,6 +6,9 @@ import java.rmi.registry.Registry;
 import java.rmi.server.*;
 import java.util.*;
 
+/**
+ * RMI Gateway class
+ */
 public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
 
     private QueueInterface queue;
@@ -14,6 +17,10 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
     private int barrelCount;
     private HashMap<String, Integer> tops;
 
+    /**
+     * RMIGateway constructor
+     * @throws RemoteException
+     */
     public RMIGateway() throws RemoteException{
 
         super();
@@ -35,6 +42,14 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
 
     }
 
+    
+    /** 
+     * Accessed Barrel to return query results
+     * @param page
+     * @param attempts
+     * @return ArrayList<Webpage>
+     * @throws RemoteException
+     */
     public ArrayList<Webpage> search(String page, int attempts) throws RemoteException{
 
         if(attempts >= 5)
@@ -74,12 +89,26 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
         return new ArrayList<>();
     }
 
+    
+    /** 
+     * Adds url to queue to be indexed
+     * @param url
+     * @throws RemoteException
+     */
     public void indexNewUrl(String url) throws RemoteException{
 
         System.out.println("[Gateway] Index new url: " + url);
         queue.addURL(url);
     }
 
+    
+    /** 
+     * Subscribes active barrel to the gameway
+     * @param barrel
+     * @param barrelname
+     * @return int
+     * @throws RemoteException
+     */
     public int subBarrel(BarrelBase barrel, String barrelname) throws RemoteException {
 
         try {
@@ -113,6 +142,14 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
         return this.barrelCount;
     }
 
+    
+    /** 
+     * Searches url in barrel
+     * @param key
+     * @param attempts
+     * @return HashSet<String>
+     * @throws RemoteException
+     */
     public HashSet<String> lookupURL(String key, int attempts) throws RemoteException{
 
         if(attempts >= 5){
@@ -143,6 +180,11 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
         return new HashSet<String>();
     }
 
+    
+    /** 
+     * Checks Barrel state
+     * @param i
+     */
     public void checkBarrel(int i) {
 
         try {
@@ -154,6 +196,12 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
         }
     }
 
+    
+    /** 
+     * Top searches list
+     * @return ArrayList<String>
+     * @throws RemoteException
+     */
     public ArrayList<String> getTops() throws RemoteException {
 
         List<String> list = new ArrayList<>(this.tops.keySet());
@@ -168,6 +216,11 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
         return new ArrayList<>(list.subList(0, Math.min(list.size(), 10)));
     }
 
+    
+    /** 
+     * Checks number of active barrels
+     * @return int
+     */
     public int totalActiveBarrels() {
 
         int total = 0;
@@ -181,11 +234,22 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
         return total;
     }
 
+    
+    /** 
+     * Returns barrel list size
+     * @return int
+     */
     public int getBarrelsSize() {
 
         return this.barrels.size();
     }
 
+    
+    /** 
+     * Returns list of active barrels
+     * @return ArrayList<String>
+     * @throws RemoteException
+     */
     public ArrayList<String> getBarrels() throws RemoteException {
 
         for (int i = 0; i < this.getBarrelsSize(); i++) {
@@ -233,6 +297,9 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
     }
 }
 
+/**
+ * Helper class to manage list of barrels
+ */
 class BarrelTotal {
 
     private BarrelBase barrel;

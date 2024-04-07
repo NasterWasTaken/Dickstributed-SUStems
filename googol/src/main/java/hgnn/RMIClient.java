@@ -4,18 +4,25 @@ import java.rmi.*;
 import java.util.*;
 import java.text.*;
 
+/**
+ * RMI Client class
+ */
 public class RMIClient implements Runnable {
 
     private RMIGatewayBase gateway;
     private ArrayList<Webpage> webOutcomes;
 
+    /**
+     * RMIClient constructor
+     * @param gate
+     */
     public RMIClient(RMIGatewayBase gate) {
 
         this.gateway = gate;
         this.webOutcomes = new ArrayList<>();
     }
 
-    public void main(String[] args) {
+    public static void main(String[] args) {
 
         try {
 
@@ -43,17 +50,17 @@ public class RMIClient implements Runnable {
 
                         System.out.println("Insert your url to index: ");
                         temp = sc.nextLine();
-                        indexURL(0, temp);
+                        client.indexURL(0, temp);
                         break;
                     case 2:
 
                         System.out.println("Insert your search request: ");
                         temp = sc.nextLine();
-                        search(0, temp);
+                        client.search(0, temp);
                         break;
                     case 3:
 
-                        admin(0);
+                        client.admin(0);
                         break;
 
                     case 4:
@@ -80,6 +87,11 @@ public class RMIClient implements Runnable {
         }
     }
 
+    /**
+     * Performs search through gateway
+     * @param attempts
+     * @param text
+     */
     public void search(int attempts, String text) {
 
         if (attempts >= 5) {
@@ -102,6 +114,11 @@ public class RMIClient implements Runnable {
         return;
     }
 
+    /**
+     * Sends url to be indexed through gateway
+     * @param attempts
+     * @param text
+     */
     public void indexURL(int attempts, String text) {
 
         if (attempts >= 5) {
@@ -119,6 +136,10 @@ public class RMIClient implements Runnable {
         }
     }
 
+    /**
+     * Admin console priviliges for deeper access
+     * @param attempts
+     */
     public void admin(int attempts) {
 
         if(attempts >= 5) {
@@ -148,6 +169,11 @@ public class RMIClient implements Runnable {
 
     }
 
+    /** 
+     * Used to remove certain unwanted characters from String
+     * @param txt
+     * @return String
+     */
     public static String removeSpecial(String txt) {
 
         String finalText = Normalizer.normalize(txt, Normalizer.Form.NFD);
@@ -160,6 +186,9 @@ public class RMIClient implements Runnable {
     };
 }
 
+/**
+ * Helper class to manage index
+ */
 class IndexManagement implements Runnable {
 
     private RMIGatewayBase gateway;

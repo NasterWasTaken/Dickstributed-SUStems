@@ -13,6 +13,9 @@ import org.jsoup.*;
 import org.jsoup.nodes.*;
 import org.jsoup.select.*;
 
+/**
+ * Downloader Class
+ */
 public class Downloader extends UnicastRemoteObject implements DownloaderInterface, Runnable  {
     private static String MULTICAST_ADDRESS = "224.3.2.1";
     private static int PORT = 7561;
@@ -26,7 +29,16 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
     private int packID;
     private HashMap<Integer, DatagramPacket> packBuf;
 
-    Downloader(QueueInterface que, int id, Semaphore sem, MulticastSocket socket, InetAddress add) throws RemoteException {
+    /**
+     * Downloader constructor
+     * @param que Queue Interface
+     * @param id Downloader id
+     * @param sem Semaphore
+     * @param socket Multicast Socket
+     * @param add InetAddress
+     * @throws RemoteException
+     */
+    public Downloader(QueueInterface que, int id, Semaphore sem, MulticastSocket socket, InetAddress add) throws RemoteException {
         super();
         this.socket = socket;
         this.add = add;
@@ -39,14 +51,31 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         new Thread(this, String.format("Downloader-%d", id)).start();
     }
 
+    
+    /** 
+     * Returns the current downloader ID
+     * @return int
+     */
     public int getId() {
         return this.id;
     }
 
+    
+    /** 
+     * Signal used to control information flow from Queue
+     * @return boolean
+     * @throws RemoteException
+     */
     public boolean signal() throws RemoteException {
         return true;
     }
 
+    
+    /** 
+     * Used to remove certain unwanted characters from String
+     * @param str
+     * @return String
+     */
     public static String normalizeString(String str) {
         str = Normalizer.normalize(str, Normalizer.Form.NFD);
         str = str.replaceAll("\\p{M}", "");
@@ -54,6 +83,13 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         return str;
     }
 
+    
+    /** 
+     * Sends page information through UDP Multicast channel to Barrels
+     * @param url
+     * @param title
+     * @param body
+     */
     public void sendPageMulticast(String url, String title, String body) {
         if(url.length() < 1 || title.length() < 1 || body.length() < 1) return;
 
@@ -73,6 +109,12 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         }
     }
 
+    
+    /** 
+     * Sends word with url to be indexed in Barrels through UDP Multicast
+     * @param word
+     * @param url
+     */
     public void sendWordMulticast(String word, String url) {
         if(word.length() < 1 || url.length() < 1) return;
 
@@ -92,6 +134,11 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         }
     }
 
+    
+    /** 
+     * Resends lost UDP Multicast packet to Barrel when asked for
+     * @param packID
+     */
     public void resend(int packID) {
 
         try {
@@ -113,6 +160,12 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         }
     }
 
+    
+    /** 
+     * Parses through the information in the url's respective HTML Elememts
+     * @param url
+     * @throws RemoteException
+     */
     public void parsePage(String url) throws RemoteException {
         try {
             sem.acquire();
@@ -217,6 +270,10 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
     }
 }
 
+/**
+ * Helper class to run a thread used for listening in the Multicast channels
+ * Creates new instance of @see{@link MessageHandler} when it receives a message
+ */
 class MulticastHandler implements Runnable {
 
     private Downloader dl;
@@ -259,6 +316,9 @@ class MulticastHandler implements Runnable {
     }
 }
 
+/**
+ * Helper class to process a message's content
+ */
 class MessageHandler implements Runnable {
     private Downloader dl;
     private String msg;
