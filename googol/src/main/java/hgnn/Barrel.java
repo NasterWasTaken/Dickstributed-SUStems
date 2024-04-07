@@ -6,34 +6,27 @@ import java.io.*;
 import java.net.*;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 
-public class Barrel implements BarrelBase, Runnable {
+public class Barrel implements BarrelBase, Runnable, Serializable {
 
     private HashSet<Webpage> webpages;
     private HashMap<String, HashSet<String>> index;
     private HashMap<String, HashSet<String>> links;
 
-    private String SAVE = "./data/save.dat";
+    private String SAVE;
     private String name;
     private boolean updated;
-
-    private static String MULTICAST_ADDRESS = "224.3.2.1";
-    private static int PORT = 7561;
-    private MulticastSocket socket;
-    private InetAddress add;
     
     private static int MAX_DOWNS = 3;
     private Vector<Integer> curPack;
     private Vector<Vector<Integer>> lostPacks;
 
-    public Barrel(MulticastSocket socket, InetAddress add) throws RemoteException {
+    public Barrel() throws RemoteException {
         this.webpages = new HashSet<>();
         this.index = new HashMap<>();
         this.links = new HashMap<>();
         this.updated = false;
-        
-        this.socket = socket;
-        this.add = add;
 
         this.curPack = new Vector<>();
         this.lostPacks = new Vector<>();
@@ -49,7 +42,7 @@ public class Barrel implements BarrelBase, Runnable {
 
     public void init(String name) throws RemoteException{
 
-        this.SAVE = ".save" + name + "save.txt";
+        this.SAVE = "./data/save" + name + ".txt";
         this.readSave(); 
     }
 
@@ -168,9 +161,10 @@ public class Barrel implements BarrelBase, Runnable {
             }
         }
 
-        else{
+        else {
 
-                System.out.println("[Barrel] Error: Database not found ... creating new file");
+            System.out.println("[Barrel] Error: Database not found ... creating new file");
+            System.out.println(file);
         }
     }
 
@@ -336,20 +330,20 @@ public class Barrel implements BarrelBase, Runnable {
 
         if (args.length == 0) {
     
-            System.out.println("[Barrel] Incorrect command. Exiting...");
+            System.out.println("[Error] Incorrect command. Exiting...");
             System.exit(0);
         }
 
         try {
             System.out.println("[Barrel] Booting up Barrel...");
-            
-            MulticastSocket socket = new MulticastSocket(PORT);
-            InetAddress add = InetAddress.getByName(MULTICAST_ADDRESS);
 
-            RMIGateway rGate = (RMIGateway) Naming.lookup("rmi://192.168.1.98/Gateway");
+            RMIGatewayBase rGate = null;
+            if(Integer.parseInt(args[1]) == 0) rGate = (RMIGatewayBase) LocateRegistry.getRegistry(1100).lookup("Gateway");
+            else if(Integer.parseInt(args[1]) == 1) rGate = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.98/Gateway");
+            else System.out.println("[Error] Invalid RMI configuration");
             System.out.println("[Barrel] Connected to Gateway RMI server!");
 
-            Barrel barrel = new Barrel(socket, add);
+            BarrelBase barrel = new Barrel();
 
             if(rGate.subBarrel((BarrelBase) barrel, args[0]) == -1) {
                 System.out.println("[Barrel]" + args[0] + " server already active, shutting down...");

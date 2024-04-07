@@ -43,6 +43,10 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         return this.id;
     }
 
+    public boolean signal() throws RemoteException {
+        return true;
+    }
+
     public static String normalizeString(String str) {
         str = Normalizer.normalize(str, Normalizer.Form.NFD);
         str = str.replaceAll("\\p{M}", "");
@@ -171,8 +175,11 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
             System.out.println("[Downloader] Booting all Downloaders...");
             MulticastSocket socket = new MulticastSocket(PORT);
             InetAddress add = InetAddress.getByName(MULTICAST_ADDRESS);
-
-            QueueInterface que = (QueueInterface) LocateRegistry.getRegistry(1099).lookup("Queue");
+            
+            QueueInterface que = null;
+            if(Integer.parseInt(args[1]) == 0) que = (QueueInterface) LocateRegistry.getRegistry(1099).lookup("Queue");
+            else if(Integer.parseInt(args[1]) == 1) que = (QueueInterface) Naming.lookup("rmi://192.168.1.98/Queue");
+            else System.out.println("[Error] Invalid RMI configuration");
             System.out.println("[Downloader] Connected to Queue RMI Server!");
 
             for(int i = 1; i <= numDownloaders; ++i) {
@@ -197,7 +204,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
                     continue;
                 }
 
-                parsePage(url);
+                if(que.Signal()) parsePage(url);
                 url = que.getFrontURL();
             } 
         } catch (RemoteException e) {

@@ -11,4 +11,5 @@ public interface QueueInterface extends Remote {
     public String removeURL() throws RemoteException;
     public String getFrontURL() throws InterruptedException, RemoteException;
     public String peekFront() throws RemoteException;
+    public boolean Signal() throws RemoteException;
 }

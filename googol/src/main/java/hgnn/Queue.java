@@ -49,6 +49,12 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         return this.que.peek();
     }
 
+    public boolean Signal() throws RemoteException {
+        if(this.que.size() == 0) return false;
+
+        return true;
+    }
+
     public static void main(String args[]) {
         try {
             

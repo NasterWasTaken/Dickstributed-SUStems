@@ -8,7 +8,7 @@ import java.util.*;
 
 public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
 
-    private Queue queue;
+    private QueueInterface queue;
     private ArrayList<BarrelTotal> barrels;
     private int activeBarrels;
     private int barrelCount;
@@ -24,17 +24,13 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
 
         try{
 
-            this.queue = (Queue) Naming.lookup("rmi://192.168.1.98/Queue");
+            this.queue = (QueueInterface) LocateRegistry.getRegistry(1099).lookup("Queue");
             System.out.println("[Gateway] Connected to the Queue.");
 
-        }catch(RemoteException re){
-
+        } catch(RemoteException re){
             System.out.println("[Gateway] Remote Exception: Cannot connect to the Queue.");
-
-        }catch(Exception e){
-
+        } catch(Exception e){
             System.out.println("[Gateway] Exception in constructor: " + e);
-
         }
 
     }
@@ -84,7 +80,7 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
         queue.addURL(url);
     }
 
-    public int subBarrel(BarrelBase barrel, String barrelname) {
+    public int subBarrel(BarrelBase barrel, String barrelname) throws RemoteException {
 
         try {
             this.getBarrels();
@@ -222,7 +218,7 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
         try{
             System.out.println("[Gateway] Booting up...");
             RMIGatewayBase rmiBase = new RMIGateway();
-            Registry regist = LocateRegistry.createRegistry(1099);
+            Registry regist = LocateRegistry.createRegistry(1100);
             regist.rebind("Gateway", rmiBase);
             System.out.println("[Gateway] RMI Gateway ready");
         }
