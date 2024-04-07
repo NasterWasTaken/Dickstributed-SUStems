@@ -15,7 +15,7 @@ import org.jsoup.select.*;
 
 public class Downloader extends UnicastRemoteObject implements DownloaderInterface, Runnable  {
     private static String MULTICAST_ADDRESS = "224.3.2.1";
-    private static int PORT = 4321;
+    private static int PORT = 7561;
     private MulticastSocket socket;
     private InetAddress add;
     
@@ -54,8 +54,8 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         if(url.length() < 1 || title.length() < 1 || body.length() < 1) return;
 
         try {
-            // TODO: change template
-            String msg = "template page\n";
+            // type|indexPage;packID|id;url|url;title|title;body|body
+            String msg = String.format("type|indexPage;packID|%d;url|%s;title|%s;body|%s", this.packID, url, title, body);
 
             byte[] buf = msg.getBytes();
             DatagramPacket pack = new DatagramPacket(buf, buf.length, add, PORT);
@@ -73,7 +73,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         if(word.length() < 1 || url.length() < 1) return;
 
         try {
-            // TODO: change template
+            // TODO: change template | indexWord
             String msg = "template word\n";
 
             byte[] buf = msg.getBytes();
@@ -92,7 +92,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         if(url.length() < 1) return;
 
         try {
-            // TODO: change template
+            // TODO: change template | indexUrl
             String msg = "template url\n";
 
             byte[] buf = msg.getBytes();
@@ -132,7 +132,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         try {
             sem.acquire();
             Document doc = Jsoup.connect(url).ignoreHttpErrors(true).get();
-            StringTokenizer tok = new StringTokenizer(doc.text(), " ,;.:ºª?!|\n\t");
+            StringTokenizer tok = new StringTokenizer(doc.text(), " ,;.:ºª?!+|\n\t");
 
             String title = normalizeString(doc.title());
             if(title.length() < 1) title = "Untitled Page";
@@ -151,7 +151,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
                 String word = normalizeString(tok.nextToken().toLowerCase());
                 sendWordMulticast(word, url);
             }
-                
+            
             Elements links = doc.select("a[href]");
             for (Element link : links) {
                 if(que.inVisited(link.attr("abs:href"))) continue;
@@ -201,6 +201,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
 
         } catch (Exception e) {
             System.out.println("[Error] Some Exception in main: " + e);
+            e.printStackTrace();
         }
     }
 
@@ -226,5 +227,84 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         }
         
         
+    }
+}
+
+class MulticastHandler implements Runnable {
+
+    private Downloader dl;
+    private static String MULTICAST_ADDRESS = "224.3.2.1";
+    private static int PORT = 7561;
+
+    public MulticastHandler(Downloader dl) {
+        new Thread(this, "Receiver").start();
+        this.dl = dl;
+    }
+
+    public void run() {
+        MulticastSocket socket = null;
+
+        try {
+            
+            socket = new MulticastSocket(PORT);
+            InetSocketAddress add = new InetSocketAddress(MULTICAST_ADDRESS, PORT);
+            NetworkInterface netI = NetworkInterface.getByName("multi");
+            socket.joinGroup(add, netI);
+
+            System.err.println("[Handler: Multicast] Listening...");
+
+            while(true) {
+                byte[] buf = new byte[256];
+                DatagramPacket pack = new DatagramPacket(buf, buf.length);
+                socket.receive(pack);
+
+                String msg = new String(pack.getData(), 0, pack.getLength());
+
+                new MessageHandler(this.dl, msg);
+            }
+
+        } catch (IOException e) {
+            System.out.println("[Handler: Multicast] IOException occurred");
+        } finally {
+            socket.close();
+            System.out.println("[Handler: Multicast] Offline...");
+        }
+    }
+}
+
+class MessageHandler implements Runnable {
+    private Downloader dl;
+    private String msg;
+
+    public MessageHandler(Downloader dl, String msg) {
+        this.dl = dl;
+        this.msg = msg;
+
+        new Thread(this, "MessageHandler").start();
+    }
+
+    public void run() {
+        //type|resend;packID|ID
+        try {
+            
+            StringTokenizer tok_1 = new StringTokenizer(this.msg, ";");
+
+            StringTokenizer tok_2 = new StringTokenizer(tok_1.nextToken(), "|");
+
+            if(tok_2.nextToken().equals("type")) {
+                if(tok_2.nextToken().equals("resend")) {
+                    
+                    tok_2 = new StringTokenizer(tok_1.nextToken(), "|");
+                    if(tok_2.nextToken().equals("packID")) {
+                        
+                        int packID = Integer.parseInt(tok_2.nextToken());
+                        dl.resend(packID);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("[Handler: Message] Exception occurred while processing " + this.msg);
+            e.printStackTrace();
+        }
     }
 }
