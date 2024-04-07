@@ -54,14 +54,12 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             
             System.out.println("[Queue] Booting Queue...");
             QueueInterface queI = new Queue(100000);
-            queI.addURL("https://youtube.com");
 
-            Registry reg = LocateRegistry.createRegistry(9876);
+            Registry reg = LocateRegistry.createRegistry(1099);
             reg.rebind("Queue", queI);
             System.out.println("[Queue] Successfully Booted and Started RMI Server!");
 
             
-
             while(true) {
                 // TODO: receber url de gateway/Downloader, meter na fila
 
