@@ -73,7 +73,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
         if(word.length() < 1 || url.length() < 1) return;
 
         try {
-            // TODO: change template | indexWord
+            // type|indexWord;packID|id;word|word;url|url
             String msg = "template word\n";
 
             byte[] buf = msg.getBytes();
@@ -83,25 +83,6 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
             socket.send(pack);
             this.packID++;
             
-        } catch (IOException e) {
-            System.out.printf("[%s] Error Sending Word\n", Thread.currentThread().getName());
-        }
-    }
-
-    public void sendURLMulticast(String url) {
-        if(url.length() < 1) return;
-
-        try {
-            // TODO: change template | indexUrl
-            String msg = "template url\n";
-
-            byte[] buf = msg.getBytes();
-            DatagramPacket pack = new DatagramPacket(buf, buf.length, add, PORT);
-
-            this.packBuf.put(this.packID, pack);
-            socket.send(pack);
-            this.packID++;
-
         } catch (IOException e) {
             System.out.printf("[%s] Error Sending Word\n", Thread.currentThread().getName());
         }
@@ -162,7 +143,6 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
 
                     if(depth > 0 && depth < 7) {
                         que.addURL(link.attr("abs:href"));
-                        sendURLMulticast(link.attr("abs:href"));
                     }
                 } 
             }

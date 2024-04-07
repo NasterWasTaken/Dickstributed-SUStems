@@ -135,16 +135,24 @@ class MessageHandlerBarrel implements Runnable {
                     }
 
                     // TODO: colocar no barrel
-                    //System.out.printf("[Handler: Message] Indexed - %s | %s | %s\n", url, title, body);
+                    System.out.printf("[Handler: Message] Indexed Page - %s | %s | %s\n", url, title, body);
                     
                 }
                 
                 if(type.equals("indexWord")) {
+                    String word = new String();
+                    String url = new String();
 
-                }
+                    while(tok_1.hasMoreTokens()) {
+                        tok_2 = new StringTokenizer(tok_1.nextToken(), "|");
+                        String part = tok_2.nextToken();
 
-                if(type.equals("indexUrl")) {
+                        if(part.equals("word")) word = tok_2.nextToken();
+                        if(part.equals("url")) url = tok_2.nextToken();
+                    }
 
+                    // TODO: colocar no barrel
+                    System.out.printf("[Handler: Message] Indexed Word - %s | %s\n", word, url);
                 }
             }
 
