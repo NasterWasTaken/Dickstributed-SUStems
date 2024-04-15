@@ -53,7 +53,7 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
      */
     public void init(String name) throws RemoteException{
 
-        this.SAVE = "./data/save" + name + ".txt";
+        this.SAVE = "C:/Users/Utilizador/Desktop/UC/3º ano/2º semestre/SD/Dickstributed-SUStems/googol/src/main/java/hgnn/data/save" + name + ".txt";
         this.readSave(); 
     }
 
@@ -378,7 +378,7 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
 
             RMIGatewayBase rGate = null;
             if(Integer.parseInt(args[1]) == 0) rGate = (RMIGatewayBase) LocateRegistry.getRegistry(1100).lookup("Gateway");
-            else if(Integer.parseInt(args[1]) == 1) rGate = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.98/Gateway");
+            else if(Integer.parseInt(args[1]) == 1) rGate = (RMIGatewayBase) Naming.lookup("rmi://194.210.32.62/Gateway");
             else System.out.println("[Error] Invalid RMI configuration");
             System.out.println("[Barrel] Connected to Gateway RMI server!");
 
@@ -421,7 +421,7 @@ class MulticastHandlerBarrel implements Runnable {
         MulticastSocket socket = null;
         try {
             socket = new MulticastSocket(PORT);
-            socket.setSoTimeout(10000);
+            //socket.setSoTimeout(10000);
             InetSocketAddress add = new InetSocketAddress(MULTICAST_ADDRESS, PORT);
             NetworkInterface nwtI = NetworkInterface.getByName("multi");
             socket.joinGroup(add, nwtI);

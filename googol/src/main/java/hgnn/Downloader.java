@@ -231,7 +231,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
             
             QueueInterface que = null;
             if(Integer.parseInt(args[1]) == 0) que = (QueueInterface) LocateRegistry.getRegistry(1099).lookup("Queue");
-            else if(Integer.parseInt(args[1]) == 1) que = (QueueInterface) Naming.lookup("rmi://192.168.1.98/Queue");
+            else if(Integer.parseInt(args[1]) == 1) que = (QueueInterface) Naming.lookup("rmi://194.210.32.62/Queue");
             else System.out.println("[Error] Invalid RMI configuration");
             System.out.println("[Downloader] Connected to Queue RMI Server!");
 
@@ -246,6 +246,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
     }
 
     public void run() {
+        new MulticastHandler(this);
         
         try {
            String url = que.peekFront();
