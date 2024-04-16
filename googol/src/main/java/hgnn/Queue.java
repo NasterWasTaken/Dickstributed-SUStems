@@ -11,7 +11,7 @@ import java.rmi.server.*;
  * Queue class
  */
 public class Queue extends UnicastRemoteObject implements QueueInterface {
-    private ArrayBlockingQueue<String> que;
+    public ArrayBlockingQueue<String> que;
     private HashSet<String> visited;
 
     /**
@@ -32,7 +32,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * @return boolean
      */
     public boolean addURL(String url) {
-        return this.que.add(url);
+        return que.add(url);
     }
 
     /** 
@@ -122,11 +122,9 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             reg.rebind("Queue", queI);
             System.out.println("[Queue] Successfully Booted and Started RMI Server!");
 
+            //queI.addURL("http://youtube.com");
             
-            while(true) {
-                // TODO: receber url de gateway/Downloader, meter na fila
-
-            }
+            while(true) {}
 
         } catch (IOException e) {
             System.out.println("[Error] IO: " + e.getMessage());

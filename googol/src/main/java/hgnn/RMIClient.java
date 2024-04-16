@@ -23,15 +23,16 @@ public class RMIClient implements Runnable {
     }
 
     public static void main(String[] args) {
-
+        
         try {
 
             Scanner sc = new Scanner(System.in);
+            Scanner inner = new Scanner(System.in);
             int operation;
             String temp;
             boolean on = true;
             System.out.println("Client is turning on.");
-            RMIGatewayBase gate = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.98/Gateway");
+            RMIGatewayBase gate = (RMIGatewayBase) Naming.lookup("rmi://10.16.0.21:1100/Gateway");
             System.out.println("The Client has connected to the Gateway.");
 
             RMIClient client = new RMIClient(gate);
@@ -43,19 +44,20 @@ public class RMIClient implements Runnable {
                 System.out.println("2 - Perform a search.");
                 System.out.println("3 - Access Admin functions.");
                 System.out.println("4 - Exit.");
+
                 operation = sc.nextInt();
 
                 switch (operation) {
                     case 1:
 
-                        System.out.println("Insert your url to index: ");
-                        temp = sc.nextLine();
+                        System.out.print("Insert your url to index: ");
+                        temp = inner.nextLine();
                         client.indexURL(0, temp);
                         break;
                     case 2:
 
-                        System.out.println("Insert your search request: ");
-                        temp = sc.nextLine();
+                        System.out.print("Insert your search request: ");
+                        temp = inner.nextLine();
                         client.search(0, temp);
                         break;
                     case 3:
@@ -68,23 +70,29 @@ public class RMIClient implements Runnable {
                         on = false;
                         break;
                 }
-                sc.close();
+
+                
+                
                 try {
 
                     Thread.sleep((long) (Math.random() * 1000));
                 } catch (InterruptedException e) {
                     System.out.println("[Error] Thread interrupted");
                 }
-
             }
+
+            sc.close();
+            inner.close();
 
         } catch (RemoteException re) {
 
             System.out.println("[Client] A RemoteException occurred in main, unable to connect to the the Gateway.");
         } catch (Exception e) {
 
-            System.out.println("[Client] An exceprtion " + e + "was found in main.");
+            System.out.println("[Client] An exceprtion " + e + " was found in main.");
         }
+        
+        
     }
 
     /**

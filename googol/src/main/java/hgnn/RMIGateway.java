@@ -31,7 +31,7 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
 
         try{
 
-            this.queue = (QueueInterface) LocateRegistry.getRegistry(1099).lookup("Queue");
+            this.queue = (QueueInterface) Naming.lookup("rmi://10.16.0.21:1099/Queue");
             System.out.println("[Gateway] Connected to the Queue.");
 
         } catch(RemoteException re){
