@@ -8,7 +8,7 @@ public interface BarrelBase extends Remote{
     
     public void init(String name) throws RemoteException;
     public String getName() throws RemoteException;
-    public ArrayList<Webpage> search (String key) throws RemoteException;
+    public HashSet<String> search (String key) throws RemoteException;
     public boolean ActiveChecker() throws RemoteException;
     public HashSet<String> lookupLinks(String key) throws RemoteException;
 

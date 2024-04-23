@@ -120,7 +120,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
 
         try {
             // type|indexWord;packID|id;word|word;url|url
-            String msg = "template word\n";
+            String msg = String.format("type|indexWord;packID|%d;word|%s;url|%s", this.packID, word, url);
 
             byte[] buf = msg.getBytes();
             DatagramPacket pack = new DatagramPacket(buf, buf.length, add, PORT);
@@ -188,13 +188,14 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
             while(tok.hasMoreElements()) {
                 String word = normalizeString(tok.nextToken().toLowerCase());
                 sendWordMulticast(word, url);
+                System.out.println("words send");
             }
             
             Elements links = doc.select("a[href]");
             for (Element link : links) {
                 if(que.inVisited(link.attr("abs:href"))) continue;
                 
-                if(link.attr("abs:href").length() < 100) {
+                if(link.attr("abs:href").length() < 12) {
                     String temp = link.attr("abs:href").replaceAll("/", "");
                     int depth = link.attr("abs:href").length() - temp.length();
 
@@ -231,7 +232,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
             
             QueueInterface que = null;
             if(Integer.parseInt(args[1]) == 0) que = (QueueInterface) LocateRegistry.getRegistry(1099).lookup("Queue");
-            else if(Integer.parseInt(args[1]) == 1) que = (QueueInterface) Naming.lookup("rmi://10.16.0.21:1099/Queue");
+            else if(Integer.parseInt(args[1]) == 1) que = (QueueInterface) Naming.lookup("rmi://10.6.0.26:1099/Queue");
             else System.out.println("[Error] Invalid RMI configuration");
             System.out.println("[Downloader] Connected to Queue RMI Server!");
 

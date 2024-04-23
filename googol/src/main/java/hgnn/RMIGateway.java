@@ -31,7 +31,7 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
 
         try{
 
-            this.queue = (QueueInterface) Naming.lookup("rmi://10.16.0.21:1099/Queue");
+            this.queue = (QueueInterface) Naming.lookup("rmi://10.6.0.26:1099/Queue");
             System.out.println("[Gateway] Connected to the Queue.");
 
         } catch(RemoteException re){
@@ -50,10 +50,10 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
      * @return ArrayList<Webpage>
      * @throws RemoteException
      */
-    public ArrayList<Webpage> search(String page, int attempts) throws RemoteException{
+    public HashSet<String> search(String page, int attempts) throws RemoteException{
 
         if(attempts >= 5)
-            return new ArrayList<>();
+            return new HashSet<>();
 
         else if(attempts == 0){
 
@@ -67,18 +67,17 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
             }
 
         }
+        HashSet<String> list = new HashSet<>();
         try{
             if(barrels.size() > 0){
                 Random rand = new Random();
-                for (int i = 0; i < 10; i++){
 
-                    int n = rand.nextInt(0, this.barrelCount);
-                    if(barrels.get(n).getActive() == true){
+                int n = rand.nextInt(0, this.barrelCount);
+                if(barrels.get(n).getActive() == true){
 
-                        return barrels.get(n).getBarrel().search(page);
-                    }
+                    list = barrels.get(n).getBarrel().search(page);
                 }
-                throw new RemoteException();
+                
             }
         }
         catch (RemoteException re){
@@ -86,7 +85,7 @@ public class RMIGateway extends UnicastRemoteObject implements RMIGatewayBase {
             System.out.println("[Gateway] No result was found, trying again" + (attempts + 1) + "/ 5");
             return this.search(page, attempts + 1);
         }
-        return new ArrayList<>();
+        return list;
     }
 
     

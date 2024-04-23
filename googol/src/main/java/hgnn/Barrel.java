@@ -227,6 +227,8 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
             urls.add(url);
             this.index.put(content, urls);
         }
+
+        System.out.println("palavra: " + this.index.get(content));
     }
 
     
@@ -293,39 +295,25 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
         return new HashSet<>();
     }
 
-    public ArrayList<Webpage> search (String key) throws RemoteException {
+    public HashSet<String> search (String key) throws RemoteException {
 
         System.out.println("Searching: " + key);
         HashSet<String> obtainedUrls = new HashSet<>();
 
-        StringTokenizer tokenizer = new StringTokenizer(key);
+        HashSet<String> list = new HashSet<>();
+        list = this.index.get(key);
+
+        return list;
         
-        if(!tokenizer.hasMoreTokens()){
+        /*if(this.index.containsKey(key)){
+            System.out.println("has");
+            obtainedUrls.addAll(this.index.get(key));
 
-            return new ArrayList<>();
+            HashSet<String> tempObtained = new HashSet<>(this.index.get(key));
+            obtainedUrls.retainAll(tempObtained);
+            
         }
 
-        String token = tokenizer.nextToken();
-
-        if(this.index.containsKey(token)){
-
-            obtainedUrls.addAll(this.index.get(token));
-
-            while(tokenizer.hasMoreTokens()){
-
-                token = tokenizer.nextToken();
-                if(this.index.containsKey(token)){
-
-                    HashSet<String> tempObtained = new HashSet<>(this.index.get(token));
-                    obtainedUrls.retainAll(tempObtained);
-                }
-                else{
-
-                    return new ArrayList<>();
-                }
-            }
-
-        }
 
         HashSet<Webpage> outcome = new HashSet<>();
         for(String url: obtainedUrls){
@@ -333,6 +321,7 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
             for(Webpage web : this.webpages){
                 
                 if(web.getUrl().equals(url)){
+                    System.out.println("equals");
 
                     outcome.add(web);
                 }
@@ -352,17 +341,18 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
         for(Webpage web: outcome){
 
             sortOutcome.add(new WebpageTotal(web, this.getWebNumber(web)));
+            System.out.println("sort");
         }
 
         sortOutcome.sort(comp);
 
         ArrayList<Webpage> finalArray = new ArrayList<>();
         for(WebpageTotal webTotal: sortOutcome){
-
+            System.out.println("final");
             finalArray.add(webTotal.getWeb());
         }
-
-        return finalArray;
+*/
+        //return finalArray;
     }
 
     public static void main(String[] args) {
@@ -378,7 +368,7 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
 
             RMIGatewayBase rGate = null;
             if(Integer.parseInt(args[1]) == 0) rGate = (RMIGatewayBase) LocateRegistry.getRegistry(1100).lookup("Gateway");
-            else if(Integer.parseInt(args[1]) == 1) rGate = (RMIGatewayBase) Naming.lookup("rmi://10.16.0.21:1100/Gateway");
+            else if(Integer.parseInt(args[1]) == 1) rGate = (RMIGatewayBase) Naming.lookup("rmi://10.6.0.26:1100/Gateway");
             else System.out.println("[Error] Invalid RMI configuration");
             System.out.println("[Barrel] Connected to Gateway RMI server!");
 
@@ -493,7 +483,8 @@ class MessageHandlerBarrel implements Runnable {
                     }
 
                     this.barrel.addWebpage(url, title, body);
-                    //System.out.printf("[Handler: Message] Indexed Page - %s | %s | %s\n", url, title, body);
+                    System.out.printf("[Handler: Message] Indexed Page - %s | %s | %s\n", url, title, body);
+                    barrel.writeSave();
                     
                 }
                 
@@ -510,7 +501,7 @@ class MessageHandlerBarrel implements Runnable {
                     }
 
                     this.barrel.addContent(url, word);
-                    //System.out.printf("[Handler: Message] Indexed Word - %s | %s\n", word, url);
+                    System.out.printf("[Handler: Message] Indexed Word - %s | %s\n", word, url);
                 }
             }
 
