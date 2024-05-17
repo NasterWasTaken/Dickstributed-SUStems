@@ -1,8 +1,12 @@
 package hgnn;
 
+import org.slf4j.*;
+
+import java.net.MalformedURLException;
 import java.rmi.*;
 import java.util.*;
 import java.text.*;
+import org.springframework.messaging.simp.*;
 
 /**
  * RMI Client class
@@ -11,79 +15,25 @@ public class RMIClient implements Runnable {
 
     private RMIGatewayBase gateway;
     private ArrayList<Webpage> webOutcomes;
+    private static final Logger log = LoggerFactory.getLogger(RMIClient.class);
 
     /**
      * RMIClient constructor
      * @param gate
      */
-    public RMIClient(RMIGatewayBase gate) {
-
-        this.gateway = gate;
+    public RMIClient() {
         this.webOutcomes = new ArrayList<>();
-    }
-
-    public static void main(String[] args) {
 
         try {
-
-            Scanner sc = new Scanner(System.in);
-            int operation;
-            String temp;
-            boolean on = true;
             System.out.println("Client is turning on.");
-            RMIGatewayBase gate = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.98/Gateway");
+            this.gateway = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.98/Gateway");
             System.out.println("The Client has connected to the Gateway.");
-
-            RMIClient client = new RMIClient(gate);
-
-            while (on) {
-
-                System.out.println("Which operation would you like to perform?");
-                System.out.println("1 - Index a new URL.");
-                System.out.println("2 - Perform a search.");
-                System.out.println("3 - Access Admin functions.");
-                System.out.println("4 - Exit.");
-                operation = sc.nextInt();
-
-                switch (operation) {
-                    case 1:
-
-                        System.out.println("Insert your url to index: ");
-                        temp = sc.nextLine();
-                        client.indexURL(0, temp);
-                        break;
-                    case 2:
-
-                        System.out.println("Insert your search request: ");
-                        temp = sc.nextLine();
-                        client.search(0, temp);
-                        break;
-                    case 3:
-
-                        client.admin(0);
-                        break;
-
-                    case 4:
-
-                        on = false;
-                        break;
-                }
-                sc.close();
-                try {
-
-                    Thread.sleep((long) (Math.random() * 1000));
-                } catch (InterruptedException e) {
-                    System.out.println("[Error] Thread interrupted");
-                }
-
-            }
-
         } catch (RemoteException re) {
-
-            System.out.println("[Client] A RemoteException occurred in main, unable to connect to the the Gateway.");
-        } catch (Exception e) {
-
-            System.out.println("[Client] An exceprtion " + e + "was found in main.");
+            System.out.println("[Client] A RemoteException occurred, unable to connect to the the Gateway.");
+        } catch (NotBoundException nbe) {
+            System.out.println("[Client] A NotBoundException occurred when trying to connect.");
+        } catch (MalformedURLException mue) {
+            System.out.println("[Client] A MalformedURLException occurred when trying to connect.");
         }
     }
 
@@ -92,26 +42,20 @@ public class RMIClient implements Runnable {
      * @param attempts
      * @param text
      */
-    public void search(int attempts, String text) {
+    public ArrayList<Webpage> search(int attempts, String text) {
 
         if (attempts >= 5) {
 
-            return;
+            return null;
         }
         try {
-
             this.webOutcomes = this.gateway.search(removeSpecial(text.toLowerCase()), 0);
-            for (Webpage web : this.webOutcomes) {
-
-                System.out.println("Title: " + web.getTitle() + " | URL: " + web.getUrl() + "\n");
-            }
-
         } catch (RemoteException re) {
 
             System.out.println("[Client] Unable to successfully perform the search, attempting again.");
             search(attempts + 1, text);
         }
-        return;
+        return this.webOutcomes;
     }
 
     /**
@@ -182,7 +126,30 @@ public class RMIClient implements Runnable {
         return finalText;
     }
 
+    /*public void updateTops(ArrayList<String> tops) {
+        template.convertAndSend("/tops", "clear");
+        for(String top: tops) {
+            template.convertAndSend("/tops", top);
+        }
+    }
+
+    public void updateBarrels(ArrayList<String> barrels) {
+        template.convertAndSend("/barrels", "clear");
+        for(String barrel: barrels) {
+            template.convertAndSend("/barrels", barrel);
+        }
+    }*/
+
     public void run() {
+        /*try {
+            while(true) {
+                updateTops(this.gateway.getTops());
+                updateBarrels(this.gateway.getBarrels());
+            }
+        } catch (RemoteException re) {
+            System.out.println("[Client] RemoteException occurred in threads.");
+        }*/
+        
     };
 }
 
