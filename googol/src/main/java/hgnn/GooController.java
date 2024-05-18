@@ -2,9 +2,6 @@ package hgnn;
 
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.messaging.simp.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -14,7 +11,6 @@ import org.springframework.ui.Model;
 public class GooController {
     
     private RMIClient client;
-    private static final Logger log = LoggerFactory.getLogger(GooController.class);
 
     @Autowired
     public GooController() {
@@ -47,19 +43,44 @@ public class GooController {
 
                 model.addAttribute("query", query);
                 model.addAttribute("action", action);
-                model.addAttribute("results", curPageList);
+                model.addAttribute("results", results);
                 model.addAttribute("curPage", curPage);
                 model.addAttribute("maxPages", maxPages);
             }
         } catch (Exception e) {
-            System.out.println("[Controller:homepage] An Exception has occurred while searching " + e);
+            System.out.println("[Controller:homepage] An Exception has occurred while searching: " + e);
         }
 
         return "homepage";
     }
 
+    @PostMapping("/homepage")
+    public String index(@RequestParam("query") String query, @RequestParam("action") String action, Model model) {
+
+        try {
+            if(action.equals("index")) {
+                this.client.indexURL(0, query);
+            }
+        } catch (Exception e) {
+            System.out.println("[Controller:Index] Exception occurred when indexing url: " + e);
+        }
+
+        return "homepage";
+    }
+
+    @PostMapping("/gotoAdmin")
+    public String redirectAdmin() {
+        return "redirect:/admin";
+    }
+
     @GetMapping("/admin")
-    public String adminPage() {
+    public String admin(Model model) {
+        try {
+            model.addAttribute("results-top", this.client.tops());
+            model.addAttribute("results-barrels", this.client.barrelLists());
+        } catch (Exception e) {
+            System.out.println("[Admin] Error fetching info: " + e);
+        }
         return "admin";
     }
 }

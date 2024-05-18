@@ -124,7 +124,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
 
             
             while(true) {
-                // TODO: receber url de gateway/Downloader, meter na fila
+                
 
             }
 

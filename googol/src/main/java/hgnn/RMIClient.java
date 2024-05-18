@@ -1,12 +1,9 @@
 package hgnn;
 
-import org.slf4j.*;
-
 import java.net.MalformedURLException;
 import java.rmi.*;
 import java.util.*;
 import java.text.*;
-import org.springframework.messaging.simp.*;
 
 /**
  * RMI Client class
@@ -15,7 +12,6 @@ public class RMIClient implements Runnable {
 
     private RMIGatewayBase gateway;
     private ArrayList<Webpage> webOutcomes;
-    private static final Logger log = LoggerFactory.getLogger(RMIClient.class);
 
     /**
      * RMIClient constructor
@@ -26,7 +22,7 @@ public class RMIClient implements Runnable {
 
         try {
             System.out.println("Client is turning on.");
-            this.gateway = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.98/Gateway");
+            this.gateway = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.65:1100/Gateway");
             System.out.println("The Client has connected to the Gateway.");
         } catch (RemoteException re) {
             System.out.println("[Client] A RemoteException occurred, unable to connect to the the Gateway.");
@@ -84,12 +80,14 @@ public class RMIClient implements Runnable {
      * Admin console priviliges for deeper access
      * @param attempts
      */
-    public void admin(int attempts) {
+    public ArrayList<String> admin(int attempts) {
 
         if(attempts >= 5) {
 
-            return;
+            return null;
         }
+
+        ArrayList<String> results = new ArrayList<>();
         try{
 
             ArrayList<String> tops = this.gateway.getTops();
@@ -111,6 +109,30 @@ public class RMIClient implements Runnable {
             admin(attempts + 1);
         }
 
+        return results;
+    }
+
+    public ArrayList<String> tops() {
+
+        try {
+            ArrayList<String> results = this.gateway.getTops();
+            return results;
+        } catch (RemoteException re) {
+            System.out.println("[Client] Error fetching top searches list.");
+        }
+
+        return null;
+    }
+
+    public ArrayList<String> barrelLists() {
+        try {
+            ArrayList<String> results = this.gateway.getBarrels();
+            return results;
+        } catch (RemoteException re) {
+            System.out.println("[Client] Error fetching barrels list.");
+        }
+
+        return null;
     }
 
     /** 

@@ -378,7 +378,7 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
 
             RMIGatewayBase rGate = null;
             if(Integer.parseInt(args[1]) == 0) rGate = (RMIGatewayBase) LocateRegistry.getRegistry(1100).lookup("Gateway");
-            else if(Integer.parseInt(args[1]) == 1) rGate = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.98/Gateway");
+            else if(Integer.parseInt(args[1]) == 1) rGate = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.98:1100/Gateway");
             else System.out.println("[Error] Invalid RMI configuration");
             System.out.println("[Barrel] Connected to Gateway RMI server!");
 
@@ -421,7 +421,6 @@ class MulticastHandlerBarrel implements Runnable {
         MulticastSocket socket = null;
         try {
             socket = new MulticastSocket(PORT);
-            socket.setSoTimeout(10000);
             InetSocketAddress add = new InetSocketAddress(MULTICAST_ADDRESS, PORT);
             NetworkInterface nwtI = NetworkInterface.getByName("multi");
             socket.joinGroup(add, nwtI);
@@ -493,7 +492,7 @@ class MessageHandlerBarrel implements Runnable {
                     }
 
                     this.barrel.addWebpage(url, title, body);
-                    //System.out.printf("[Handler: Message] Indexed Page - %s | %s | %s\n", url, title, body);
+                    System.out.printf("[Handler: Message] Indexed Page - %s | %s | %s\n", url, title, body);
                     
                 }
                 
@@ -510,7 +509,7 @@ class MessageHandlerBarrel implements Runnable {
                     }
 
                     this.barrel.addContent(url, word);
-                    //System.out.printf("[Handler: Message] Indexed Word - %s | %s\n", word, url);
+                    System.out.printf("[Handler: Message] Indexed Word - %s | %s\n", word, url);
                 }
             }
 

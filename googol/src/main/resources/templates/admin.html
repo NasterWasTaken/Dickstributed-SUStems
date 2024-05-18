@@ -1,10 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <title>AdminPage</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+</head>
+<body>
+    <noscript><h2 style="color: #000000">Seems your browser doesn't support Javascript! This application relies on Javascript being enabled. Please enable Javascript and reload this page!></h2></noscript>
     <main>
+        <h2>Top Searches</h2>
+        <ol id="top">
+            <li th:each="result : ${results-top}" th:text="${result}"></li>
+        </ol>
+
+        <h2>Barrel List</h2>
+        <ol id="barrels">
+            <li th:each="result : ${results-barrels}" th:text="${result}"></li>
+        </ol>
+
         <div>
             <div class="wave"></div>
             <div class="wave"></div>
             <div class="wave"></div>
         </div>
     </main>
+</body>
 </html>

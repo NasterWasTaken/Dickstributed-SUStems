@@ -120,7 +120,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
 
         try {
             // type|indexWord;packID|id;word|word;url|url
-            String msg = "template word\n";
+            String msg = String.format("type|indexWord;packID|%d;word|%s;url|%s\n", this.packID, word, url);
 
             byte[] buf = msg.getBytes();
             DatagramPacket pack = new DatagramPacket(buf, buf.length, add, PORT);
@@ -231,7 +231,7 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
             
             QueueInterface que = null;
             if(Integer.parseInt(args[1]) == 0) que = (QueueInterface) LocateRegistry.getRegistry(1099).lookup("Queue");
-            else if(Integer.parseInt(args[1]) == 1) que = (QueueInterface) Naming.lookup("rmi://192.168.1.98/Queue");
+            else if(Integer.parseInt(args[1]) == 1) que = (QueueInterface) Naming.lookup("rmi://192.168.1.98:1099/Queue");
             else System.out.println("[Error] Invalid RMI configuration");
             System.out.println("[Downloader] Connected to Queue RMI Server!");
 
@@ -246,19 +246,27 @@ public class Downloader extends UnicastRemoteObject implements DownloaderInterfa
     }
 
     public void run() {
-        
+        new MulticastHandler(this);
+        boolean first = true;
+
         try {
-           String url = que.peekFront();
         
             while(true) {
-                
+                String url = que.getFrontURL();
+
                 if(que.inVisited(url)) {
                     url = que.removeURL();
                     continue;
                 }
 
+                if(first) {
+                    parsePage(url);
+                    first = false;
+                    continue;
+                }
+
                 if(que.Signal()) parsePage(url);
-                url = que.getFrontURL();
+                
             } 
         } catch (RemoteException e) {
             System.out.printf("[%s] Error RemoteException\n", Thread.currentThread().getName());

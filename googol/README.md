@@ -8,4 +8,4 @@
  - Criar a variável ``JAVA_HOME`` nas variáveis do sistema, sendo o valor o caminho para a pasta `bin` do JDK
 
 ## Passo 3 - Correr o programa
- - Basta correr os scripts `run_1.bat` e `run_2.bat` por esta mesma ordem em máquinas diferentes; a compilação será executada e o programa inicia
+ - Basta correr os scripts `run_1.bat` e `runFront.bat` por esta mesma ordem; a compilação será executada e o programa inicia
