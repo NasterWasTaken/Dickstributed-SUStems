@@ -1,6 +1,6 @@
 package hgnn;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -9,12 +9,10 @@ import org.junit.Test;
  */
 public class AppTest 
 {
-    /**
-     * Rigorous Test :-)
-     */
+    //Test made with the main purpose of testing the tests
     @Test
     public void shouldAnswerWithTrue()
     {
-        assertTrue( true );
+        assertTrue(Barrel.ActiveChecker());
     }
 }

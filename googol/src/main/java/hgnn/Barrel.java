@@ -295,23 +295,36 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
         return new HashSet<>();
     }
 
-    public HashSet<String> search (String key) throws RemoteException {
+    public ArrayList<Webpage> search (String key) throws RemoteException {
 
         System.out.println("Searching: " + key);
         HashSet<String> obtainedUrls = new HashSet<>();
 
-        HashSet<String> list = new HashSet<>();
-        list = this.index.get(key);
+        StringTokenizer st = new StringTokenizer(key);
 
-        return list;
+        if(!st.hasMoreTokens()){
+
+            return new ArrayList<>();
+        }
+
+        String token = st.nextToken();
         
-        /*if(this.index.containsKey(key)){
-            System.out.println("has");
-            obtainedUrls.addAll(this.index.get(key));
+        if(this.index.containsKey(token)){
+            //System.out.println("has");
+            obtainedUrls.addAll(this.index.get(token));
 
-            HashSet<String> tempObtained = new HashSet<>(this.index.get(key));
-            obtainedUrls.retainAll(tempObtained);
-            
+            while(st.hasMoreTokens()){
+                token = st.nextToken();
+                if(this.index.containsKey(token)){
+
+                    HashSet<String> tempObtained = new HashSet<>(this.index.get(token));
+                    obtainedUrls.retainAll(tempObtained);
+                }
+                else{
+
+                    return new ArrayList<>();
+                }
+            }
         }
 
 
@@ -351,8 +364,8 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
             System.out.println("final");
             finalArray.add(webTotal.getWeb());
         }
-*/
-        //return finalArray;
+
+        return finalArray;
     }
 
     public static void main(String[] args) {
@@ -368,7 +381,7 @@ public class Barrel implements BarrelBase, Runnable, Serializable {
 
             RMIGatewayBase rGate = null;
             if(Integer.parseInt(args[1]) == 0) rGate = (RMIGatewayBase) LocateRegistry.getRegistry(1100).lookup("Gateway");
-            else if(Integer.parseInt(args[1]) == 1) rGate = (RMIGatewayBase) Naming.lookup("rmi://10.6.0.26:1100/Gateway");
+            else if(Integer.parseInt(args[1]) == 1) rGate = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.93:1100/Gateway");
             else System.out.println("[Error] Invalid RMI configuration");
             System.out.println("[Barrel] Connected to Gateway RMI server!");
 

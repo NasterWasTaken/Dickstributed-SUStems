@@ -32,7 +32,7 @@ public class RMIClient implements Runnable {
             String temp;
             boolean on = true;
             System.out.println("Client is turning on.");
-            RMIGatewayBase gate = (RMIGatewayBase) Naming.lookup("rmi://10.6.0.26:1100/Gateway");
+            RMIGatewayBase gate = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.93:1100/Gateway");
             System.out.println("The Client has connected to the Gateway.");
 
             RMIClient client = new RMIClient(gate);
@@ -108,15 +108,16 @@ public class RMIClient implements Runnable {
         }
         try {
 
-            HashSet<String> list = this.gateway.search(removeSpecial(text).toLowerCase(), 0);
-            for(String s : list) {
+            this.webOutcomes = this.gateway.search(removeSpecial(text).toLowerCase(), 0);
+            /* 
+            for(Webpage web: list) {
                 System.out.println("url associado: " + s);
             }
-
-            /*for (Webpage web : this.webOutcomes) {
+            */
+            for (Webpage web : this.webOutcomes) {
 
                 System.out.println("Title: " + web.getTitle() + " | URL: " + web.getUrl() + "\n");
-            }*/
+            }
 
         } catch (RemoteException re) {
 
