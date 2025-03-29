@@ -22,7 +22,7 @@ public class RMIClient implements Runnable {
 
         try {
             System.out.println("Client is turning on.");
-            this.gateway = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.65:1100/Gateway");
+            this.gateway = (RMIGatewayBase) Naming.lookup("rmi://192.168.1.98:1100/Gateway");
             System.out.println("The Client has connected to the Gateway.");
         } catch (RemoteException re) {
             System.out.println("[Client] A RemoteException occurred, unable to connect to the the Gateway.");
@@ -80,7 +80,7 @@ public class RMIClient implements Runnable {
      * Admin console priviliges for deeper access
      * @param attempts
      */
-    public ArrayList<String> admin(int attempts) {
+    /*public ArrayList<String> admin(int attempts) {
 
         if(attempts >= 5) {
 
@@ -110,8 +110,12 @@ public class RMIClient implements Runnable {
         }
 
         return results;
-    }
+    }*/
 
+    /**
+     * Function that returns the top 10 searches
+     * @return ArrayList<String>
+     */
     public ArrayList<String> tops() {
 
         try {
@@ -124,6 +128,10 @@ public class RMIClient implements Runnable {
         return null;
     }
 
+    /**
+     * Function that returns the list of active barrels
+     * @return ArrayList<String>
+     */
     public ArrayList<String> barrelLists() {
         try {
             ArrayList<String> results = this.gateway.getBarrels();
@@ -148,29 +156,8 @@ public class RMIClient implements Runnable {
         return finalText;
     }
 
-    /*public void updateTops(ArrayList<String> tops) {
-        template.convertAndSend("/tops", "clear");
-        for(String top: tops) {
-            template.convertAndSend("/tops", top);
-        }
-    }
-
-    public void updateBarrels(ArrayList<String> barrels) {
-        template.convertAndSend("/barrels", "clear");
-        for(String barrel: barrels) {
-            template.convertAndSend("/barrels", barrel);
-        }
-    }*/
-
     public void run() {
-        /*try {
-            while(true) {
-                updateTops(this.gateway.getTops());
-                updateBarrels(this.gateway.getBarrels());
-            }
-        } catch (RemoteException re) {
-            System.out.println("[Client] RemoteException occurred in threads.");
-        }*/
+        
         
     };
 }

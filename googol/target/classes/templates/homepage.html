@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th = "http://www.thymeleaf.org">
+<head>
+    <title>HomePage</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+</head>
+<body>
+
+    <noscript><h2 style="color: #000000">Seems your browser doesn't support Javascript! This application relies on Javascript being enabled. Please enable Javascript and reload this page!</h2></noscript>
+    <header>
+        <h1>GOOGOL</h1>
+    </header>
+    <main>
+        <form action="#" th:action="@{/homepage}" method="get">
+            <input type="text" name="query" placeholder="Search...">
+            <button type="submit" name="action" value="search">Search</button>
+        </form>
+        <form action="#" th:action="@{/homepage}" method="post">
+            <input type="text" name="query" placeholder="Index...">
+            <button type="send" name="action" value="index">Index URL</button>
+        </form>
+
+        <form action="#" th:action="@{/gotoAdmin}" method="post">
+            <button type="submit">Admin Info</button>
+        </form>
+        
+        <h2>Search Results</h2>
+        <ol id="search-results">
+            <li th:each="result : ${results}" th:text="${result}"></li>
+        </ol>
+        
+        <div id="pages">
+            <a th:href="@{/search(query=${query}, page=${curPage - 1}, action = ${action})}" th:if="${curPage > 1}">Previous</a>
+            <span th:text="${curPage}"></span>
+            <a th:href="@{/homepage(query=${query}, page=${curPage + 1}, acrion = ${action})}" th:if="${curPage < maxPages}">Next</a>
+        </div>
+
+        <div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+        </div>
+    </main>
+</body>
+</html>

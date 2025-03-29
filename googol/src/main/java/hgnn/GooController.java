@@ -12,17 +12,32 @@ public class GooController {
     
     private RMIClient client;
 
+    /**
+     * Autowired Constructor for the class
+     */
     @Autowired
-    public GooController() {
-        
-    }
+    public GooController() {}
 
+    /**
+     * Mapping for the 1st loging, creating a new user in the process and redirecting to the homepage
+     * @param modelo model class for springboot
+     * @return String
+     */
     @GetMapping("/")
     public String redirect(Model modelo) {
         this.client = new RMIClient();
         return "homepage";
     }
 
+    /**
+     * Function that receives the info that is input from the homepage
+     * Takes care of the "search" function
+     * @param query String query for the search
+     * @param curPage Current page on the list of results
+     * @param action Action
+     * @param model model class for springboot
+     * @return String
+     */
     @GetMapping("/homepage")
     public String homePage(@RequestParam("query") String query, @RequestParam(value = "page", defaultValue = "1") int curPage, @RequestParam("action") String action, Model model) {
         try {
@@ -54,6 +69,14 @@ public class GooController {
         return "homepage";
     }
 
+    /**
+     * Function that receives the info that is input from the homepage
+     * Takes care of the "index" function
+     * @param query String query for the search
+     * @param action Action
+     * @param model model class for springboot
+     * @return String
+     */
     @PostMapping("/homepage")
     public String index(@RequestParam("query") String query, @RequestParam("action") String action, Model model) {
 
@@ -68,16 +91,25 @@ public class GooController {
         return "homepage";
     }
 
+    /**
+     * Redirects to admin page
+     * @return String
+     */
     @PostMapping("/gotoAdmin")
     public String redirectAdmin() {
         return "redirect:/admin";
     }
 
+    /**
+     * Admin page that displays the top searches and the active barrels
+     * @param model model class for springboot
+     * @return String
+     */
     @GetMapping("/admin")
     public String admin(Model model) {
         try {
-            model.addAttribute("results-top", this.client.tops());
-            model.addAttribute("results-barrels", this.client.barrelLists());
+            model.addAttribute("resultsTop", this.client.tops());
+            model.addAttribute("resultsBarrels", this.client.barrelLists());
         } catch (Exception e) {
             System.out.println("[Admin] Error fetching info: " + e);
         }
